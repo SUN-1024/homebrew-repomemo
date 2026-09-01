@@ -1,0 +1,23 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  formula:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install and test formula in a clean tap
+        run: |
+          brew tap-new SUN-1024/repomemo-ci
+          tap_dir="$(brew --repository SUN-1024/repomemo-ci)"
+          cp Formula/repomemo.rb "$tap_dir/Formula/repomemo.rb"
+          brew install --formula SUN-1024/repomemo-ci/repomemo
+          brew test SUN-1024/repomemo-ci/repomemo
+          brew audit --strict SUN-1024/repomemo-ci/repomemo

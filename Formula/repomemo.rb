@@ -1,46 +1,29 @@
 class Repomemo < Formula
-  desc "CLI that initializes shared AI project memory in any repository"
+  desc "Git-neutral continuity layer for agent-native project directories"
   homepage "https://github.com/SUN-1024/repomemo"
-  url "https://github.com/SUN-1024/repomemo/archive/refs/tags/v1.3.0.tar.gz"
-  sha256 "7391987dc632f4b93f6a365d05214d199dad9d314f19cc5c828b6b50638c194a"
+  url "https://github.com/SUN-1024/repomemo/releases/download/v2.0.0/repomemo.js"
+  version "2.0.0"
+  sha256 "c51c1b60e206a0a859e421fd5f06cf0e0a1cf8a99c194c73f9e3093cbb5581c1"
   license "MIT"
-  version "1.3.0"
 
-  # Bash 3.2+ is sufficient; macOS ships with /bin/bash 3.2 already.
-  uses_from_macos "bash"
+  depends_on "node@22"
 
   def install
-    bin.install "bin/repomemo"
-    (share/"repomemo").install "templates"
-
-    # Rewrite the template path so the installed script finds templates in
-    # Homebrew's share directory rather than the source-tree sibling.
-    inreplace bin/"repomemo",
-              'TEMPLATE_DIR="$(dirname "$SCRIPT_DIR")/templates"',
-              "TEMPLATE_DIR=\"#{share}/repomemo/templates\""
+    libexec.install "repomemo.js"
+    (bin/"repomemo").write_env_script libexec/"repomemo.js", PATH: formula_opt_bin("node@22")
   end
 
   test do
     assert_match "repomemo #{version}", shell_output("#{bin}/repomemo --version")
-    assert_match "USAGE", shell_output("#{bin}/repomemo --help")
 
-    # init must create the full scaffold in a fresh directory
-    mkdir testpath/"target"
-    system bin/"repomemo", "init", "--target", testpath/"target"
-    %w[
-      .ai/README.md
-      .ai/project.md
-      .ai/memory.md
-      .ai/handoff.md
-      CLAUDE.md
-      AGENTS.md
-      opencode.md
-    ].each do |rel|
-      assert_predicate testpath/"target"/rel, :exist?, "missing after init: #{rel}"
-    end
+    target = testpath/"plain project"
+    target.mkpath
+    system bin/"repomemo", "init", "--target", target
+    system bin/"repomemo", "doctor", "--target", target
 
-    # check must pass on the directory we just initialized
-    system bin/"repomemo", "check", testpath/"target"
-    system bin/"repomemo", "check", "--strict", testpath/"target"
+    assert_predicate target/"AGENTS.md", :file?
+    assert_predicate target/"AGENT_STATE.md", :file?
+    assert_predicate target/".agents/skills/README.md", :file?
+    refute_path_exists target/".git"
   end
 end
