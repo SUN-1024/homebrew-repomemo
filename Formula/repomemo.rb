@@ -10,6 +10,7 @@ class Repomemo < Formula
 
   def install
     libexec.install "repomemo.js"
+    chmod 0755, libexec/"repomemo.js"
     (bin/"repomemo").write_env_script libexec/"repomemo.js", PATH: formula_opt_bin("node@22")
   end
 
