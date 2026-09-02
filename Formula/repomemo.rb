@@ -1,8 +1,8 @@
 class Repomemo < Formula
   desc "Git-neutral continuity layer for agent-native project directories"
   homepage "https://github.com/SUN-1024/repomemo"
-  url "https://github.com/SUN-1024/repomemo/releases/download/v2.0.0/repomemo.js"
-  sha256 "c51c1b60e206a0a859e421fd5f06cf0e0a1cf8a99c194c73f9e3093cbb5581c1"
+  url "https://github.com/SUN-1024/repomemo/releases/download/v2.0.3/repomemo.js"
+  sha256 "ebc969471de60b48799c4e89f12a79ef1d99cd9300bd02da301606a3c0771131"
   license "MIT"
 
   depends_on "node@22"
